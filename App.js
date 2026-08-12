@@ -128,6 +128,37 @@ const styles = StyleSheet.create({
   infoUsuario: {
     flex: 1, // Toma el espacio restante a la derecha de la imagen
     justifyContent: 'center',
+    alignItems: 'center',
+    padding: 30,
+  },
+  tituloPrincipal: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 30,
+    textAlign: 'center',
+  },
+  subtitulo: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  etiqueta: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#444444',
+    marginBottom: 5,
+  },
+  input: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d1d1d1',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    height: 50,
+    marginBottom: 15,
+    fontSize: 16,
   },
   nombreUsuario: {
     fontSize: 18,
