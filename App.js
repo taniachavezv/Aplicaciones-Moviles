@@ -1,26 +1,16 @@
 import { useState, useEffect } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TextInput, 
-  Button, 
-  FlatList, 
-  Image, 
-  Alert, 
-  ActivityIndicator 
-} from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, FlatList, Image, Alert, ActivityIndicator } from 'react-native';
 
 export default function App() {
-  // PASO 2: Arrancar la aplicación y crear las memorias (Estados)
+
   const [pantallaActual, setPantallaActual] = useState('registro');
+
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [telefono, setTelefono] = useState('');
   const [empleados, setEmpleados] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  // PASO 3: Consumir la API y adaptar los datos (Carga Inicial)
   useEffect(() => {
     descargarEmpleados();
   }, []);
@@ -28,16 +18,16 @@ export default function App() {
   const descargarEmpleados = async () => {
     try {
       const respuesta = await fetch('https://randomuser.me/api/?results=5');
+
       const json = await respuesta.json();
 
-      // Adaptación de datos de la API a nuestro formato usando backticks (`)
       const empleadosAdaptados = json.results.map((user) => ({
-        id: user.login.uuid,
-        nombre: `${user.name.first} ${user.name.last}`,
-        correo: user.email,
-        telefono: user.phone,
-        imagen: user.picture.large,
-      }));
+      id: user.login.uuid,
+      nombre: '${user.name.first} ${user.name.last}',
+      correo: user.email,
+      telefono: user.phone,
+      imagen: user.picture.large
+    }));
 
       setEmpleados(empleadosAdaptados);
       setCargando(false);
@@ -47,69 +37,42 @@ export default function App() {
     }
   };
 
-  // PASO 4: Lógica para el botón "Agregar Empleado"
   const agregarEmpleadoManual = () => {
-    // Eliminamos espacios en blanco accidentales al inicio/final
-    const nombreLimpio = nombre.trim();
-    const correoLimpio = correo.trim();
-    const telefonoLimpio = telefono.trim();
 
-    // 1. Validar que no haya campos vacíos
-    if (!nombreLimpio || !correoLimpio || !telefonoLimpio) {
+    if (!nombre.trim() || !correo.trim() || !telefono.trim()) {
       Alert.alert('Error', 'Todos los campos son obligatorios.');
       return;
     }
 
-    // 2. Validar correo electrónico (@ y .)
-    if (!correoLimpio.includes('@') || !correoLimpio.includes('.')) {
+    if (telefono.lenght !== 10) {
+      Alert.alert('Error', 'El número de teléfono debe tener exactamente 10 dígitos.');
+      return;
+    }
+
+    if (!correo.includes('@') || !correo.includes('.')) {
       Alert.alert('Error', 'Ingresa un correo electrónico válido.');
       return;
     }
 
-    // 3. Validar teléfono (exactamente 10 dígitos numéricos)
-    const esNumeroValido = /^\d+$/.test(telefonoLimpio);
-    if (telefonoLimpio.length !== 10 || !esNumeroValido) {
-      Alert.alert(
-        'Error', 
-        'El número de teléfono debe contener exactamente 10 dígitos.'
-      );
-      return;
-    }
+  const nuevoEmpleado = {
+  id: Date.now().toString(),
+  nombre: nombre,
+  correo: correo,
+  telefono: telefono,
+  imagen: 'https://i.pravatar.cc/150?u=${Date.now()}'
+};
 
-    // 4. Crear el nuevo objeto con avatar dinámico
-    const nuevoEmpleado = {
-      id: Date.now().toString(),
-      nombre: nombreLimpio,
-      correo: correoLimpio,
-      telefono: telefonoLimpio,
-      imagen: `https://i.pravatar.cc/150?u=${Date.now()}`
-    };
+setEmpleados ([nuevoEmpleado, ...empleados]);
 
-    // 5. Inyectar al inicio de la lista maestra
-    setEmpleados([nuevoEmpleado, ...empleados]);
+Alert.alert('!Registro Exitoso', 'El empleado ${nombre} ha sido agregado correctamente');
 
-    // 6. Alerta de éxito y cambio de pantalla
-    Alert.alert(
-      '¡Registro Exitoso!',
-      `Hola ${nombreLimpio}, tu cuenta ha sido creada.`,
-      [
-        {
-          text: 'Continuar',
-          onPress: () => setPantallaActual('lista')
-        }
-      ]
-    );
+setNombre('');
+setCorreo('');
+setTelefono('');
+};
 
-    // 7. Limpiar campos del formulario
-    setNombre('');
-    setCorreo('');
-    setTelefono('');
-  };
-
-  // PASO 5: Las tres caras de la aplicación (Renderizado Condicional)
-
-  // Pantalla 1: Carga
-  if (cargando) {
+// Pantalla 1: Pantalla de carga
+if (cargando) {
     return (
       <View style={styles.pantallaCentrada}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -118,13 +81,13 @@ export default function App() {
     );
   }
 
-  // Pantalla 2: Lista
+  // Pantalla 2: Lista de Empleados
   if (pantallaActual === 'lista') {
     return (
       <View style={styles.contenedor}>
         <Text style={styles.tituloPrincipal}>Lista de Empleados</Text>
         
-        <View style={styles.espaciadoBoton}>
+        <View style={styles.botonEspaciado}>
           <Button 
             title="Registrar Nuevo Empleado" 
             onPress={() => setPantallaActual('registro')} 
@@ -139,8 +102,8 @@ export default function App() {
               <Image source={{ uri: item.imagen }} style={styles.imagenPerfil} />
               <View style={styles.infoUsuario}>
                 <Text style={styles.nombreUsuario}>{item.nombre}</Text>
-                <Text style={styles.textoDetalle}>✉️ {item.correo}</Text>
-                <Text style={styles.textoDetalle}>📞 {item.telefono}</Text>
+                <Text style={styles.textoDetalle}>{item.correo}</Text>
+                <Text style={styles.textoDetalle}>{item.telefono}</Text>
               </View>
             </View>
           )}
@@ -149,7 +112,7 @@ export default function App() {
     );
   }
 
-  // Pantalla 3: Registro (Renderizado por defecto)
+  // Pantalla 3: Formulario de Registro (Vista por defecto)
   return (
     <View style={styles.contenedor}>
       <Text style={styles.tituloPrincipal}>Nuevo Ingreso</Text>
@@ -175,14 +138,14 @@ export default function App() {
       <Text style={styles.etiqueta}>Teléfono (10 dígitos):</Text>
       <TextInput
         style={styles.input}
-        placeholder="1234567890"
-        keyboardType="numeric"
+        placeholder="10 dígitos"
+        keyboardType="phone-pad"
         maxLength={10}
         value={telefono}
         onChangeText={setTelefono}
       />
 
-      <View style={styles.espaciadoBoton}>
+      <View style={styles.botonEspaciado}>
         <Button 
           title="Agregar Empleado" 
           color="#28a745" 
@@ -190,7 +153,7 @@ export default function App() {
         />
       </View>
 
-      <View style={styles.espaciadoBoton}>
+      <View style={styles.botonEspaciado}>
         <Button 
           title="Ver Lista de Empleados" 
           color="#007bff" 
@@ -201,7 +164,7 @@ export default function App() {
   );
 }
 
-// PASO 6: Estilos
+// Estilos
 const styles = StyleSheet.create({
   contenedor: {
     flex: 1,
